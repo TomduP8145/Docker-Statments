@@ -1,15 +1,15 @@
-import os
+import os 
 import subprocess
 import tempfile
 import pytesseract
 from flask import Flask, request, render_template_string
-import re  # For handling regex
+import re
 
-class SingleOrganizer:
+class SingleOrganizer: 
     def __init__(self):
         self.app = Flask(__name__)
-        self.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-        self.poppler_path = r'C:\Program Files\Release-24.08.0-0\poppler-24.08.0\Library\bin'
+        self.pytesseract_cmd = '/usr/bin/tesseract'
+        self.poppler_path = '/usr/bin'
         self.uploads_dir = tempfile.mkdtemp()
         pytesseract.pytesseract.tesseract_cmd = self.pytesseract_cmd
         self.setup_routes()
@@ -135,24 +135,23 @@ class SingleOrganizer:
         for row in rows:
             if row.strip():
                 columns = self.extract_columns(row)
-                if len(columns) == 5:  # Ensure we have exactly 5 columns (Date, Details, Amount, Interest Rate, Balance)
+                if len(columns) == 5:
                     table_data.append(columns)
 
         return table_data
 
     def extract_columns(self, row):
-        # Use regex to extract the five required fields
         match = re.match(r'(\d{8})\s+([A-Z\s]+)\s+([0-9,.-]+)\s+([0-9.]+)\s+([0-9,.-]+)', row)
 
         if match:
             date = match.group(1)
             details = match.group(2).strip()
-            amount = match.group(3).replace(',', '')  # Remove commas from numbers
+            amount = match.group(3).replace(',', '')
             interest_rate = match.group(4)
             balance = match.group(5).replace(',', '')
 
             return [date, details, amount, interest_rate, balance]
-        return [''] * 5  # Return empty values if the row does not match expected format
+        return [''] * 5
 
     def run(self):
         self.app.run(debug=True)
